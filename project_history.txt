@@ -1,0 +1,95 @@
+    1  ping 8.8.8.8
+    2  nmcli con show
+    3  disconnect
+    4  sudo nmcli con mod enp0s5 ipv4.addresses 192.168.1.100/24
+    5  sudo nmcli con mod enp0s5 ipv4.gateway 192.168.1.1
+    6  sudo nmcli con mod enp0s5 ipv4.dns 8.8.8.8
+    7  sudo nmcli con mod enp0s5 ipv4.method manual
+    8  sudo nmcli con up enp0s5
+    9  sudo nmcli con mod enp0s5 ipv4.addresses 192.168.1.100/24
+   10  nmcli con show
+   11  sudo nmcli con mod "Profile 1" ipv4.addresses 192.168.1.100/24
+   12  sudo nmcli con mod "Profile 1" ipv4.gateway 192.168.1.1
+   13  sudo nmcli con mod "Profile 1" ipv4.dns 8.8.8.8
+   14  sudo nmcli con mod "Profile 1" ipv4.method manual
+   15  sudo nmcli con up "Profile 1"
+   16  
+   17  ip addr show
+   18  sudo hostnamectl set-hostname mephi-2026.domain.local
+   19  ping -c 4 8.8.8.8 > /tmp/network_check.txt
+   20  ping -c 4 192.168.1.1 >> /tmp/network_check.txt
+   21  cat /tmp/network_check.txt
+   22  rm /tmp/network_check.txt
+   23  cat /tmp/network_check.txt
+   24  ping -c 4 192.168.1.1
+   25  ping -c 4 0.0.0.0
+   26  ping -c 4 192.168.1.1
+   27  ip route show
+   28  sudo nmcli con mod "Profile 1" ipv4.addresses 192.168.1.100/24
+   29  sudo nmcli con mod "Profile 1" ipv4.gateway 192.168.1.1
+   30  sudo nmcli con mod "Profile 1" ipv4.dns 8.8.8.8
+   31  sudo nmcli con mod "Profile 1" ipv4.method manual
+   32  sudo nmcli con up "Profile 1"
+   33  ip addr show
+   34  ip route show
+   35  ping -c 4 192.168.1.1
+   36  ip route show
+   37  ping -c 4 192.168.1.1
+   38  sudo nmcli con mod "Profile 1" ipv4.gateway 192.168.5.1
+   39  sudo nmcli con up "Profile 1"
+   40  ping -c 4 192.168.5.1
+   41  sudo nmcli con mod "Profile 1" ipv4.addresses 192.168.5.100/24
+   42  sudo nmcli con mod "Profile 1" ipv4.gateway 192.168.5.1
+   43  sudo nmcli con mod "Profile 1" ipv4.dns 8.8.8.8
+   44  sudo nmcli con up "Profile 1"
+   45  ping -c 4 192.168.5.1
+   46  ping -c 4 8.8.8.8
+   47  ping -c 4 8.8.8.8 > /tmp/network_check.txt
+   48  ping -c 4 192.168.5.1 >> /tmp/network_check.txt
+   49  cat /tmp/network_check.txt
+   50  sudo dnf install -y nginx tcpdump libcap-ng-utils
+   51  sudo dnf download --destdir /tmp tcpdump
+   52  ls /tmp/tcpdump*.rpm
+   53  sudo rpm -ivh --reinstall /tmp/tcpdump-4.99.6-2.fc42.aarch64.rpm
+   54  lsblk
+   55  sudo poweroff
+   56  lsblk
+   57  sudo fdisk /dev/sdb
+   58  sudo mkfs.ext4 -L MEPHI_DATA /dev/sdb1
+   59  sudo mkdir -p /data/mephi-web
+   60  echo 'LABEL=MEPHI_DATA /data/mephi-web ext4 defaults 0 2' | sudo tee -a /etc/fstab
+   61  sudo mount -a
+   62  df -h /data/mephi-web
+   63  sudo systemctl daemon-reload
+   64  sudo systemctl enable --now nginx
+   65  sudo systemctl status nginx
+   66  journalctl -u nginx --since "5 minutes ago" > /tmp/nginx_recent_logs.txt
+   67  cat /tmp/nginx_recent_logs.txt
+   68  sudo useradd mephi-admin
+   69  echo 'P@ssw0rd2026' | sudo passwd --stdin mephi-admin
+   70  sudo groupadd mephi-devs
+   71  sudo usermod -aG mephi-devs mephi-admin
+   72  sudo chown mephi-admin:mephi-devs /data/mephi-web
+   73  sudo chmod 2775 /data/mephi-web
+   74  ls -ld /data/mephi-web
+   75  getenforce
+   76  sudo semanage fcontext -a -t httpd_sys_content_t "/data/mephi-web(/.*)?"
+   77  sudo restorecon -Rv /data/mephi-web
+   78  sudo setcap cap_net_raw,cap_net_admin=eip /usr/sbin/tcpdump
+   79  getcap /usr/sbin/tcpdump
+   80  sudo -u mephi-admin tcpdump --help
+   81  sudo sed -i 's/^#*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+   82  grep PermitRootLogin /etc/ssh/sshd_config
+   83  sudo systemctl restart sshd
+   84  sudo grep PermitRootLogin /etc/ssh/sshd_config
+   85  sudo systemctl restart sshd
+   86  echo 'root' | sudo tee /etc/deniedusers
+   87  sudo chmod 600 /etc/deniedusers
+   88  echo 'auth required pam_listfile.so item=user sense=deny file=/etc/deniedusers onerr=succeed' | sudo tee -a /etc/pam.d/login
+   89  sudo sed -i 's|root.*html;|root /data/mephi-web;|' /etc/nginx/nginx.conf
+   90  sudo nginx -t
+   91  sudo systemctl reload nginx su - mephi-admin -c 'echo "Hello from Student: 354062" > /data/mephi-web/index.html' curl http://localhost
+   92  sudo systemctl reload nginx
+   93  su - mephi-admin -c 'echo "Hello from Student: 354062" > /data/mephi-web/index.html'
+   94  curl http://localhost
+   95  history > ~/project_history.txt
